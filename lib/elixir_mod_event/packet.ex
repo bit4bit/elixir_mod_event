@@ -132,8 +132,8 @@ defmodule FSModEvent.Packet do
     end
     success = case pkt.headers["reply-text"] do
       nil -> false
-      <<"+OK", _rest :: binary>> -> true
-      _ -> false
+      <<"-ERR", _rest :: binary>> -> false
+      _ -> true
     end
     ctype = pkt.headers["content-type"]
     %FSModEvent.Packet{pkt |
