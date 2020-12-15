@@ -312,10 +312,16 @@ defmodule FSModEvent.Connection do
     }}
   end
 
+
   @spec handle_call(
     term, term, FSModEvent.Connection.t
   ) :: {:noreply, FSModEvent.Connection.t} |
     {:reply, term, FSModEvent.Connection.t}
+
+  def handle_call(_call, _from, %FSModEvent.Connection{state: :connecting} = state) do
+    {:reply, {:error, :connecting}, state}
+  end
+
   def handle_call({:bgapi, caller, command, args}, _from, state) do
     id = UUID.uuid4
     cmd_send state.socket, "bgapi #{command} #{args}\nJob-UUID: #{id}"
@@ -327,7 +333,7 @@ defmodule FSModEvent.Connection do
     cmd_send state.socket, command
     {:noreply, %FSModEvent.Connection{state | sender: from}}
   end
-
+  
   def handle_call(call, _from, state) do
     Logger.warn "Unknown call: #{inspect call}"
     {:reply, :unknown_call, state}
